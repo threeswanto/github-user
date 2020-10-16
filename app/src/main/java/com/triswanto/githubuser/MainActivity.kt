@@ -43,8 +43,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        intent = Intent(this, About::class.java)
-        startActivity(intent)
+        if (item.itemId == R.id.btn_favorite) {
+            intent = Intent(this, Favorite::class.java)
+            startActivity(intent)
+        } else if (item.itemId == R.id.btn_setting) {
+            intent = Intent(this, Setting::class.java)
+            startActivity(intent)
+        }
         return super.onOptionsItemSelected(item)
 
     }

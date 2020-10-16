@@ -1,14 +1,20 @@
 package com.triswanto.githubuser
 
+import android.content.ContentValues
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.triswanto.githubuser.adapter.SectionsPagerAdapter
+import com.triswanto.githubuser.database.UserContract.UserColumns.Companion.AVATAR
+import com.triswanto.githubuser.database.UserContract.UserColumns.Companion.CONTENT_URI_USER
+import com.triswanto.githubuser.database.UserContract.UserColumns.Companion.HTML
+import com.triswanto.githubuser.database.UserContract.UserColumns.Companion.USERNAME
+import com.triswanto.githubuser.database.UserHelper
 import com.triswanto.githubuser.model.User
 import com.triswanto.githubuser.model.UserDetail
 import com.triswanto.githubuser.presenter.PresenterDetailUser
@@ -50,6 +56,29 @@ class DetailUser : AppCompatActivity() {
 
         presenterDetailUser = PresenterDetailUser(this)
         presenterDetailUser!!.getDetailUser(userItem.login)
+        btn_favorite_detail.visibility = View.VISIBLE
+
+        val userHelper = UserHelper.getDatabase(applicationContext)
+        userHelper.open()
+        if (userHelper.check(userItem.id.toString())){
+            btn_favorite_detail.visibility = View.GONE
+            btn_unfavorite_detail.visibility = View.VISIBLE
+        }
+        btn_favorite_detail.setOnClickListener {
+            val values = ContentValues()
+            values.put(USERNAME, userItem.login)
+            values.put(AVATAR, userItem.avatar_url)
+            values.put(HTML, userItem.html_url)
+            contentResolver.insert(CONTENT_URI_USER, values)
+            btn_favorite_detail.visibility = View.INVISIBLE
+            btn_unfavorite_detail.visibility = View.VISIBLE
+        }
+
+        btn_unfavorite_detail.setOnClickListener {
+            contentResolver.delete(Uri.parse(CONTENT_URI_USER.toString() + "/" + userItem.id),null,null)
+            btn_favorite_detail.visibility = View.VISIBLE
+            btn_unfavorite_detail.visibility = View.INVISIBLE
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
